@@ -1,0 +1,5 @@
+{
+  "team_abbrev": "TOR",
+  "post_all_finished_games": true,
+  "_comment": "team_abbrev = 3-letter ESPN code (TOR, LAL, BOS, GSW, MIL, DEN, PHX, NYK, ...). Set post_all_finished_games to true to generate every finished game instead of just the followed team."
+}

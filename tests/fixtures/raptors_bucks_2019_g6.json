@@ -1,0 +1,124 @@
+{
+  "_comment": "Minimal ESPN-shaped fixture for Bucks @ Raptors, ECF Game 6, 2019-05-25. Used for offline replay tests; not a verbatim ESPN response.",
+  "event": {
+    "id": "401127948",
+    "season": {"slug": "post-season"},
+    "competitions": [
+      {
+        "competitors": [
+          {
+            "homeAway": "home",
+            "winner": true,
+            "score": "100",
+            "team": {
+              "id": "28",
+              "displayName": "Toronto Raptors",
+              "shortDisplayName": "Raptors",
+              "name": "Raptors",
+              "abbreviation": "TOR",
+              "color": "ce1141",
+              "alternateColor": "061922",
+              "logo": "https://a.espncdn.com/i/teamlogos/nba/500/tor.png"
+            }
+          },
+          {
+            "homeAway": "away",
+            "winner": false,
+            "score": "94",
+            "team": {
+              "id": "15",
+              "displayName": "Milwaukee Bucks",
+              "shortDisplayName": "Bucks",
+              "name": "Bucks",
+              "abbreviation": "MIL",
+              "color": "00471b",
+              "alternateColor": "eee1c6",
+              "logo": "https://a.espncdn.com/i/teamlogos/nba/500/mil.png"
+            }
+          }
+        ],
+        "series": {
+          "summary": "TOR wins series 4-2",
+          "competitors": [
+            {"id": "28", "wins": 4},
+            {"id": "15", "wins": 2}
+          ]
+        },
+        "notes": [
+          {"headline": "Eastern Conference Finals"}
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "boxscore": {
+      "players": [
+        {
+          "team": {"id": "28", "abbreviation": "TOR"},
+          "statistics": [
+            {
+              "keys": ["MIN","FG","3PT","FT","OREB","DREB","REB","AST","STL","BLK","TO","PF","+/-","PTS"],
+              "athletes": [
+                {
+                  "athlete": {
+                    "id": "6450",
+                    "displayName": "Kawhi Leonard",
+                    "shortName": "K. Leonard",
+                    "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/6450.png"}
+                  },
+                  "stats": ["39","9-22","2-6","7-9","1","16","17","7","1","0","2","2","11","27"]
+                },
+                {
+                  "athlete": {
+                    "id": "3012",
+                    "displayName": "Kyle Lowry",
+                    "shortName": "K. Lowry",
+                    "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/3012.png"}
+                  },
+                  "stats": ["38","5-13","2-7","3-3","0","5","5","8","0","0","2","3","8","15"]
+                },
+                {
+                  "athlete": {
+                    "id": "2991043",
+                    "displayName": "Pascal Siakam",
+                    "shortName": "P. Siakam",
+                    "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/2991043.png"}
+                  },
+                  "stats": ["38","5-9","0-0","8-10","1","6","7","2","1","0","1","4","6","18"]
+                },
+                {
+                  "athlete": {
+                    "id": "3037789",
+                    "displayName": "Fred VanVleet",
+                    "shortName": "F. VanVleet",
+                    "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/3037789.png"}
+                  },
+                  "stats": ["33","5-11","5-9","1-2","0","3","3","3","1","1","0","2","1","16"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "team": {"id": "15", "abbreviation": "MIL"},
+          "statistics": [
+            {
+              "keys": ["MIN","FG","3PT","FT","OREB","DREB","REB","AST","STL","BLK","TO","PF","+/-","PTS"],
+              "athletes": [
+                {
+                  "athlete": {
+                    "id": "3032977",
+                    "displayName": "Giannis Antetokounmpo",
+                    "shortName": "G. Antetokounmpo",
+                    "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/3032977.png"}
+                  },
+                  "stats": ["41","7-18","0-3","7-12","3","13","16","5","0","2","8","6","-7","21"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
