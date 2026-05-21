@@ -24,8 +24,8 @@ class Team:
     logo_url: str
     is_home: bool
     is_winner: bool
-    color: str = "#1d428a"        # ESPN primary color (hex w/ #), default = NBA blue
-    alt_color: str = "#c9082a"    # ESPN alternate color, default = NBA red
+    color: str = "#1d428a"        
+    alt_color: str = "#c9082a"    
     series_wins: int | None = None
 
 
@@ -34,9 +34,9 @@ class Game:
     game_id: str
     home: Team
     away: Team
-    header: str           # e.g. "EASTERN CONFERENCE FINALS" or "REGULAR SEASON"
-    game_label: str       # e.g. "GAME 6" or "" for regular season
-    series_summary: str   # raw text from ESPN, kept for debugging
+    header: str           
+    game_label: str       
+    series_summary: str   
 
     @property
     def winner(self) -> Team:
@@ -159,13 +159,11 @@ def fetch_hero_image_url(summary: dict[str, Any]) -> str | None:
     gp_article = gp.get("article") or {}
     candidates += gp_article.get("images") or []
 
-    # Some summaries embed a `videos[*].poster` URL instead of article images.
     for v in (summary.get("videos") or []):
         poster = v.get("poster") or v.get("thumbnail")
         if poster:
             candidates.append({"url": poster, "width": 1280})
 
-    # Pick the widest image so the pubmat doesn't pixelate.
     best = None
     best_w = 0
     for img in candidates:

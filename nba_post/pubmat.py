@@ -1,4 +1,3 @@
-"""Pillow pubmat composer — bold team-color portrait with stat-card layout."""
 from __future__ import annotations
 
 import io

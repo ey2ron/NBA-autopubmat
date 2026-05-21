@@ -33,8 +33,6 @@ class PlayerLine:
     game_score: float = 0.0
 
 
-# Column order per ESPN summary.boxscore.players[*].statistics[0]:
-# ["MIN","FG","3PT","FT","OREB","DREB","REB","AST","STL","BLK","TO","PF","+/-","PTS"]
 _STAT_KEYS = ["MIN", "FG", "3PT", "FT", "OREB", "DREB", "REB", "AST", "STL", "BLK", "TO", "PF", "+/-", "PTS"]
 
 

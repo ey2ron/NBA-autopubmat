@@ -5,11 +5,13 @@ Run with:
 """
 from __future__ import annotations
 
+import base64
 import html
 from datetime import date, datetime
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from nba_post.main import build_caption
 from nba_post.mvp import pick_mvp
@@ -116,10 +118,8 @@ h1, h2, h3, h4, h5, h6 {
 .nba-brand { display: flex; align-items: center; gap: 14px; }
 .nba-brand-logo {
   width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--nba-red), var(--nba-red-deep));
   border-radius: 11px;
-  display: grid; place-items: center;
-  font-size: 22px;
+  display: block;
   box-shadow: 0 0 24px rgba(201, 8, 42, 0.45);
 }
 .nba-brand-name {
@@ -503,7 +503,160 @@ hr { border-color: var(--border-glass) !important; opacity: 1; }
 </style>
 """
 
+LANDING_CSS = """
+<style>
+section[data-testid="stSidebar"],
+button[data-testid="stSidebarCollapsedControl"],
+button[data-testid="collapsedControl"] { display: none !important; }
+.landing-wrap {
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px 0;
+}
+.landing-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.36em;
+  color: var(--nba-gold);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  animation: fadeInUp 0.6s ease both;
+}
+.landing-title {
+  font-family: 'Bebas Neue', sans-serif !important;
+  font-size: clamp(60px, 9.5vw, 116px) !important;
+  line-height: 0.88 !important;
+  letter-spacing: 0.04em;
+  color: white !important;
+  margin: 0 0 34px !important;
+  animation: fadeInUp 0.6s ease 0.08s both;
+}
+.landing-title .grad {
+  background: linear-gradient(135deg, var(--nba-red) 10%, var(--nba-gold) 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.landing-divider {
+  width: 52px; height: 3px;
+  background: linear-gradient(90deg, var(--nba-red), var(--nba-gold));
+  border-radius: 2px;
+  margin: 0 auto 30px;
+  animation: fadeInUp 0.6s ease 0.14s both;
+}
+.landing-creators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 16px;
+  animation: fadeInUp 0.6s ease 0.20s both;
+}
+.landing-creator {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.68);
+  letter-spacing: 0.05em;
+}
+.landing-dot {
+  color: var(--nba-gold);
+  font-size: 20px;
+  opacity: 0.70;
+  line-height: 1;
+}
+.landing-tap-hint {
+  margin-top: 56px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  animation: fadeInUp 0.6s ease 0.40s both, pulse-opacity 2.4s ease-in-out 1.2s infinite;
+}
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.85; }
+}
+@media (max-width: 640px) {
+  .landing-title { font-size: 58px !important; }
+  .landing-creator { font-size: 13px; }
+}
+</style>
+"""
+
+
+def _render_landing() -> None:
+    st.markdown(LANDING_CSS, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="landing-wrap">
+          <div class="landing-eyebrow">BSCS-3A</div>
+          <h1 class="landing-title">
+            PYTHON<br><span class="grad">AUTOMATION</span><br>PROJECT
+          </h1>
+          <div class="landing-divider"></div>
+          <div class="landing-creators">
+            <span class="landing-creator">Aaron Clyde Guiruela</span>
+            <span class="landing-dot">&middot;</span>
+            <span class="landing-creator">Gian Dimaranan</span>
+            <span class="landing-dot">&middot;</span>
+            <span class="landing-creator">Scheza Mae Fernando</span>
+          </div>
+          <div class="landing-tap-hint"></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    # Invisible Streamlit button — JS fires it when anywhere on screen is tapped
+    if st.button("enter", key="enter_btn"):
+        st.session_state.entered = True
+        st.rerun()
+    st.markdown(
+        """
+        <style>
+        [data-testid="stButton"] {
+          position: absolute !important;
+          left: -9999px !important;
+          top: -9999px !important;
+          pointer-events: none !important;
+        }
+        .stApp { cursor: pointer !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    # components.html runs in an iframe and can reach window.parent —
+    # the only reliable way to execute JS in Streamlit.
+    components.html(
+        """
+        <script>
+        (function () {
+          function attach() {
+            var btn = window.parent.document.querySelector('[data-testid="stButton"] button');
+            if (!btn) { setTimeout(attach, 80); return; }
+            window.parent.document.body.addEventListener('click', function handler() {
+              window.parent.document.body.removeEventListener('click', handler);
+              btn.click();
+            }, { once: true });
+          }
+          attach();
+        })();
+        </script>
+        """,
+        height=0,
+    )
+
+
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+if not st.session_state.get("entered", False):
+    _render_landing()
+    st.stop()
 
 
 # ============================================================== HTML helpers
@@ -517,12 +670,18 @@ def _status_badge(label: str = "FINAL") -> str:
 
 
 def _render_navbar() -> None:
+    logo_path = ROOT / "assets" / "logo.svg"
+    logo_uri = ""
+    if logo_path.exists():
+        svg_bytes = logo_path.read_bytes()
+        svg_b64 = base64.b64encode(svg_bytes).decode("ascii")
+        logo_uri = f"data:image/svg+xml;base64,{svg_b64}"
     now = datetime.now().strftime("%b %d, %Y · %I:%M %p")
     st.markdown(
         f"""
         <div class="nba-navbar">
           <div class="nba-brand">
-            <div class="nba-brand-logo">🏀</div>
+            <img class="nba-brand-logo" src="{logo_uri}" alt="NBA Pubmat logo" />
             <div>
               <div class="nba-brand-name">NBA <span class="accent">PUBMAT</span></div>
               <div class="nba-brand-sub">Scores · Pubmat · Generator</div>
@@ -565,8 +724,7 @@ def _render_score_card(game: Game, status: str = "FINAL") -> None:
     if game.header:
         header_bits.append(html.escape(game.header.upper()))
     if game.game_label:
-        header_bits.append(html.escape(game.game_label.upper()))
-    header_bits.append(f"GAME ID · {html.escape(game.game_id)}")
+      header_bits.append(html.escape(game.game_label.upper()))
 
     if header_bits:
         st.caption(" · ".join(header_bits))
@@ -656,8 +814,8 @@ _render_hero()
 
 _render_section_label(1, "Pick a Game")
 
-tab_today, tab_date, tab_id = st.tabs(
-  ["Today", "Specific date", "Game ID"]
+tab_today, tab_date = st.tabs(
+  ["Today", "Specific date"]
 )
 
 
@@ -668,12 +826,7 @@ def _games_for(target: date | None, abbrev: str | None) -> list[Game]:
     return games
 
 
-def _present_game_picker(games: list[Game], key_prefix: str) -> Game | None:
-    if not games:
-        return None
-    if len(games) == 1:
-        st.info(f"One game found: **{games[0].away.name}** @ **{games[0].home.name}**")
-        return games[0]
+def _render_multi_game_picker(games: list[Game], key_prefix: str) -> None:
     labels = [
         f"{g.away.name} {g.away.score} @ {g.home.name} {g.home.score}"
         for g in games
@@ -684,62 +837,51 @@ def _present_game_picker(games: list[Game], key_prefix: str) -> Game | None:
         format_func=lambda i: labels[i],
         key=f"{key_prefix}_game_select",
     )
-    return games[idx]
+    if st.button("Generate Pubmat", key=f"{key_prefix}_gen_btn", type="primary"):
+        with st.spinner("Fetching box score & building pubmat..."):
+            summary = fetch_box_score(games[idx].game_id)
+            _generate_preview(games[idx], summary)
 
 
 with tab_today:
     if st.button("Fetch today's finished games", type="primary", key="today_btn"):
         _clear_preview()
+        st.session_state.pop("today_games", None)
         with st.spinner("Calling ESPN scoreboard..."):
-            games = _games_for(None, None)
-        if not games:
+            fetched = _games_for(None, None)
+        if not fetched:
             st.warning("No finished NBA games today.")
+        elif len(fetched) == 1:
+            st.info(f"One game found: **{fetched[0].away.name}** @ **{fetched[0].home.name}**")
+            with st.spinner("Fetching box score & building pubmat..."):
+                summary = fetch_box_score(fetched[0].game_id)
+                _generate_preview(fetched[0], summary)
         else:
-            game = _present_game_picker(games, "today")
-            if game is not None:
-                with st.spinner("Fetching box score & building pubmat..."):
-                    summary = fetch_box_score(game.game_id)
-                    _generate_preview(game, summary)
+            st.session_state.today_games = fetched
+
+    if "today_games" in st.session_state:
+        _render_multi_game_picker(st.session_state.today_games, "today")
 
 
 with tab_date:
     d = st.date_input("Date", value=date.today(), key="date_picker")
     if st.button("Fetch games for date", type="primary", key="date_btn"):
         _clear_preview()
+        st.session_state.pop("date_games", None)
         with st.spinner(f"Calling ESPN scoreboard for {d}..."):
-            games = _games_for(d, None)
-        if not games:
+            fetched = _games_for(d, None)
+        if not fetched:
             st.warning(f"No finished games on {d}.")
+        elif len(fetched) == 1:
+            st.info(f"One game found: **{fetched[0].away.name}** @ **{fetched[0].home.name}**")
+            with st.spinner("Fetching box score & building pubmat..."):
+                summary = fetch_box_score(fetched[0].game_id)
+                _generate_preview(fetched[0], summary)
         else:
-            game = _present_game_picker(games, "date")
-            if game is not None:
-                with st.spinner("Fetching box score & building pubmat..."):
-                    summary = fetch_box_score(game.game_id)
-                    _generate_preview(game, summary)
+            st.session_state.date_games = fetched
 
-
-with tab_id:
-    game_id = st.text_input("ESPN game ID", placeholder="e.g. 401766112")
-    if st.button("Fetch this game", type="primary", key="id_btn") and game_id.strip():
-        _clear_preview()
-        with st.spinner("Fetching..."):
-            try:
-                summary = fetch_box_score(game_id.strip())
-                header = summary.get("header") or {}
-                competitions = header.get("competitions") or []
-                if competitions:
-                    from nba_post.scraper import _parse_game
-                    fake_event = {
-                        "id": game_id.strip(),
-                        "competitions": competitions,
-                        "season": header.get("season") or {},
-                    }
-                    game = _parse_game(fake_event)
-                    _generate_preview(game, summary)
-                else:
-                    st.error("ESPN summary lacked competition data.")
-            except Exception as exc:
-                st.error(f"Could not load game {game_id}: {exc}")
+    if "date_games" in st.session_state:
+        _render_multi_game_picker(st.session_state.date_games, "date")
 
 
 
