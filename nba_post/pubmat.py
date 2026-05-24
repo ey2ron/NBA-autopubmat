@@ -277,32 +277,47 @@ def build_pubmat(game: Game, mvp: PlayerLine | None, summary: dict | None = None
     # --------- 2. Stat-card score rows
     # Layout: team name on the LEFT, score on the RIGHT, two rows (winner first).
     row1_y = rule_y + 50
-    row_gap = 130
+    row_gap = 140
 
-    score_font = _display(140)
-    name_font = _bold(56)
+    score_font = _display(136)
+    name_font = _bold(52)
+    abbrev_font = _bold(80)
 
     # Right-edge for scores
     right_edge = CANVAS[0] - pad_x
+
+    # Max width the team label can occupy before the score starts
+    _score_reserve = 320  # enough for a 3-digit score at 136pt
 
     def _draw_row(y: int, team: Team, *, dim: bool) -> None:
         text_alpha = 165 if dim else 255
         color = (*fg, text_alpha)
 
-        # Team name (tracked all-caps)
-        _draw_tracked(
-            draw, (pad_x, y + 30), team.name.upper(),
-            name_font, spacing=3, fill=color,
-        )
-        # Score (right-aligned)
+        # Score (right-aligned) — draw first so we know exact left edge
         score_str = str(team.score)
         sbb = draw.textbbox((0, 0), score_str, font=score_font)
         sw = sbb[2] - sbb[0]
-        draw.text((right_edge - sw, y - 20), score_str, font=score_font, fill=color)
+        score_x = right_edge - sw
+        draw.text((score_x, y - 20), score_str, font=score_font, fill=color)
+
+        # Team label: use abbreviation if full name would overlap score
+        max_name_w = score_x - pad_x - 40
+        full_name = team.name.upper()
+        # Measure full name
+        trial_w = sum(
+            draw.textbbox((0, 0), c, font=name_font)[2]
+            for c in full_name
+        ) + 3 * max(0, len(full_name) - 1)
+        if trial_w > max_name_w:
+            # Fall back to abbreviation drawn larger
+            _draw_centered(draw, (pad_x + max_name_w // 2, y + 50), team.abbrev.upper(), abbrev_font, fill=color)
+        else:
+            _draw_tracked(draw, (pad_x, y + 30), full_name, name_font, spacing=3, fill=color)
+
         # Underline beneath the winner's score only
         if not dim:
             draw.line(
-                (right_edge - sw, y + (sbb[3] - sbb[1]) + 5,
+                (score_x, y + (sbb[3] - sbb[1]) + 5,
                  right_edge, y + (sbb[3] - sbb[1]) + 5),
                 fill=(*fg, 220), width=6,
             )
@@ -318,43 +333,38 @@ def build_pubmat(game: Game, mvp: PlayerLine | None, summary: dict | None = None
             wins_str = f"{winner.abbrev} LEADS {winner.series_wins}–{loser.series_wins}"
         else:
             wins_str = f"SERIES TIED {winner.series_wins}–{loser.series_wins}"
-        series_y = row1_y + row_gap + 180
-        series_font = _bold(24)
+        series_y = row1_y + row_gap + 190
+        series_font = _bold(28)
         sbb = draw.textbbox((0, 0), wins_str, font=series_font)
         sw = sbb[2] - sbb[0]
+        # Clamp so it never bleeds off the left edge
+        sx = max(pad_x, right_edge - sw - 30)
         _draw_tracked(
-            draw, (right_edge - sw - 30, series_y), wins_str,
+            draw, (sx, series_y), wins_str,
             series_font, spacing=3, fill=(*fg, 215),
         )
 
     # --------- 4. MVP credit at the bottom
     if mvp is not None:
-        # Rule above MVP
-        mvp_top = CANVAS[1] - 240
-        draw.line((pad_x, mvp_top, pad_x + 200, mvp_top), fill=(*fg, 220), width=4)
+        mvp_top = CANVAS[1] - 260
+        draw.line((pad_x, mvp_top, pad_x + 220, mvp_top), fill=(*fg, 220), width=4)
 
         _draw_tracked(
             draw, (pad_x, mvp_top + 18), "PLAYER OF THE GAME",
-            _bold(22), spacing=4, fill=(*fg, 220),
+            _bold(24), spacing=5, fill=(*fg, 220),
         )
-        # Name
         draw.text(
-            (pad_x, mvp_top + 60),
+            (pad_x, mvp_top + 58),
             mvp.name.upper(),
-            font=_bold(48),
+            font=_bold(52),
             fill=fg,
         )
-        # Stat line: "27 PTS · 17 REB · 7 AST · 1 STL · 0 BLK"
-        statline = (
-            f"{mvp.pts} PTS  ·  {mvp.reb} REB  ·  {mvp.ast} AST  "
-            f"·  {mvp.stl} STL  ·  {mvp.blk} BLK"
-        )
-        draw.text(
-            (pad_x, mvp_top + 125),
-            statline,
-            font=_regular(28),
-            fill=(*fg, 220),
-        )
+        # Split stat line into two rows so it fits on any screen size
+        row_a = f"{mvp.pts} PTS   ·   {mvp.reb} REB   ·   {mvp.ast} AST"
+        row_b = f"{mvp.stl} STL   ·   {mvp.blk} BLK"
+        stat_font = _regular(30)
+        draw.text((pad_x, mvp_top + 128), row_a, font=stat_font, fill=(*fg, 220))
+        draw.text((pad_x, mvp_top + 168), row_b, font=stat_font, fill=(*fg, 180))
 
     # --------- 5. Tiny "FINAL" badge in the top-right of the color band
     badge_text = "FINAL"

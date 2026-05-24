@@ -490,15 +490,46 @@ hr { border-color: var(--border-glass) !important; opacity: 1; }
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+  /* Stack Streamlit columns vertically */
+  [data-testid="stHorizontalBlock"] {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  [data-testid="stColumn"] {
+    width: 100% !important;
+    min-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  /* Sidebar hidden by default on mobile */
+  section[data-testid="stSidebar"] {
+    width: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden;
+  }
+  .block-container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
 @media (max-width: 640px) {
   .score-value { font-size: 44px; }
   .score-team { font-size: 17px; }
   .score-team .abbrev { min-width: 42px; height: 42px; font-size: 16px; }
-  .nba-navbar { padding: 11px 14px; flex-wrap: wrap; gap: 10px; }
+  .nba-navbar {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .nba-nav-meta { font-size: 10px; }
   .nba-brand-name { font-size: 19px; }
   .nba-hero h1 { font-size: 36px !important; }
   .potg-name { font-size: 26px; }
   .potg-stats { gap: 14px; }
+  .section-label { font-size: 11px; }
+  .potg-card { padding: 14px 16px; }
 }
 </style>
 """
@@ -900,7 +931,7 @@ else:
     col_img, col_meta = st.columns([1, 1])
 
     with col_img:
-        st.image(str(image_path), caption=image_path.name, width="stretch")
+        st.image(str(image_path), caption=image_path.name, use_container_width=True)
 
     with col_meta:
         _render_score_card(game, status="FINAL")
